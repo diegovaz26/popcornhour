@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Portal de Películas{% endblock %}
+
+{% block content %}
+<div class="text-center py-10">
+    <h1 class="text-4xl font-bold mb-4">Bienvenido a CinePortal</h1>
+    <p class="text-xl mb-8">Tu portal para descubrir, calificar y discutir sobre películas y series</p>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <h2 class="text-2xl font-bold mb-4">Películas Destacadas</h2>
+    
+    {% if movies %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for movie in movies %}
+                <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="w-full h-64 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold mb-2">{{ movie.title }}</h3>
+                        <p class="text-gray-700 mb-2">{{ movie.release_year }} | {{ movie.director }}</p>
+                        <p class="text-gray-600 mb-4 line-clamp-3">{{ movie.description }}</p>
+                        <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">Ver detalles</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-600">No hay películas disponibles actualmente.</p>
+    {% endif %}
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4">Sobre CinePortal</h2>
+    <div class="prose max-w-none">
+        <p>CinePortal es una comunidad para amantes del cine y las series donde puedes:</p>
+        <ul class="list-disc pl-5 mt-2 space-y-1">
+            <li>Descubrir nuevas películas y series</li>
+            <li>Calificar tus películas favoritas</li>
+            <li>Participar en discusiones con otros usuarios</li>
+            <li>Compartir tus opiniones a través de comentarios</li>
+        </ul>
+        
+        <p class="mt-4">Si eres un moderador, también puedes agregar nuevas películas y series a la plataforma.</p>
+        
+        {% if not session.get('user_id') %}
+            <div class="mt-6">
+                <p class="font-semibold">¿Aún no tienes una cuenta?</p>
+                <a href="{{ url_for('register') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block mt-2">Regístrate ahora</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

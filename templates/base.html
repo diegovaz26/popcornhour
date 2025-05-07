@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portal de Películas{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-blue-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-2xl font-bold">CinePortal</a>
+            <div class="space-x-4">
+                <a href="{{ url_for('index') }}" class="hover:text-blue-200">Inicio</a>
+                <a href="{{ url_for('movies') }}" class="hover:text-blue-200">Películas</a>
+                {% if session.get('user_id') %}
+                    {% if session.get('user_role') == 'moderator' %}
+                        <a href="{{ url_for('add_movie') }}" class="hover:text-blue-200">Agregar Película</a>
+                    {% endif %}
+                    <span class="text-blue-300">Hola, {{ session.get('user_name') }}</span>
+                    <a href="{{ url_for('logout') }}" class="hover:text-blue-200">Cerrar Sesión</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="hover:text-blue-200">Iniciar Sesión</a>
+                    <a href="{{ url_for('register') }}" class="hover:text-blue-200">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{% if category == 'error' %}bg-red-100 border-red-400 text-red-700{% elif category == 'success' %}bg-green-100 border-green-400 text-green-700{% else %}bg-blue-100 border-blue-400 text-blue-700{% endif %} px-4 py-3 rounded relative mb-4" role="alert">
+                        <span class="block sm:inline">{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="bg-blue-800 text-white p-4 mt-8">
+        <div class="container mx-auto text-center">
+            <p>© 2025 CinePortal - Todos los derechos reservados</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Películas - Portal de Películas{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold mb-4">Catálogo de Películas</h1>
+    <p class="text-gray-600">Explora nuestra colección de películas y series</p>
+</div>
+
+<div class="mb-6">
+    <input type="text" id="searchInput" placeholder="Buscar películas..." 
+           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+</div>
+
+{% if movies %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="moviesGrid">
+        {% for movie in movies %}
+            <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow movie-card">
+                <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="w-full h-64 object-cover">
+                <div class="p-4">
+                    <h3 class="text-xl font-bold mb-2">{{ movie.title }}</h3>
+                    <p class="text-gray-700 mb-2">{{ movie.release_year }} | {{ movie.director }}</p>
+                    <p class="text-gray-600 mb-4 line-clamp-3">{{ movie.description }}</p>
+                    <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">Ver detalles</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+        <p class="text-gray-600">No hay películas disponibles actualmente.</p>
+        {% if session.get('user_role') == 'moderator' %}
+            <a href="{{ url_for('add_movie') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block mt-4">Agregar Película</a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<script>
+    // Búsqueda de películas en tiempo real
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const movieCards = document.querySelectorAll('.movie-card');
+        
+        movieCards.forEach(card => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const description = card.querySelector('p:nth-of-type(2)').textContent.toLowerCase();
+            
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

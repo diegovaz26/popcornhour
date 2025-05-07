@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ movie.title }} - Portal de Películas{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="md:flex">
+        <div class="md:w-1/3">
+            <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="w-full h-auto object-cover">
+        </div>
+        <div class="p-6 md:w-2/3">
+            <h1 class="text-3xl font-bold mb-2">{{ movie.title }}</h1>
+            <div class="flex items-center mb-4">
+                <div class="flex items-center">
+                    {% for i in range(5) %}
+                        {% if i < avg_rating|int %}
+                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                        {% else %}
+                            <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <span class="ml-2 text-gray-600">{{ "%.1f"|format(avg_rating) }} / 5 ({{ ratings|length }} calificaciones)</span>
+            </div>
+            
+            <div class="mb-4">
+                <p class="text-gray-700"><strong>Año:</strong> {{ movie.release_year }}</p>
+                <p class="text-gray-700"><strong>Director:</strong> {{ movie.director }}</p>
+            </div>
+            
+            <div class="mb-6">
+                <h2 class="text-xl font-bold mb-2">Sinopsis</h2>
+                <p class="text-gray-700">{{ movie.description }}</p>
+            </div>
+            
+            {% if session.get('user_id') %}
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold mb-2">Califica esta película</h3>
+                    <form method="POST" action="{{ url_for('rate_movie', movie_id=movie.id) }}" class="flex items-center">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="flex items-center mr-4">
+                            {% for i in range(1, 6) %}
+                                <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" class="hidden peer" required>
+                                <label for="star{{ i }}" class="cursor-pointer w-8 h-8 text-gray-300 hover:text-yellow-400 peer-checked:text-yellow-400">
+                                    <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                </label>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">Calificar</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="mt-8 bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-bold mb-6">Comentarios y Discusión</h2>
+    
+    {% if session.get('user_id') %}
+        <div class="mb-8">
+            <h3 class="text-lg font-bold mb-2">Deja tu comentario</h3>
+            <form method="POST" action="{{ url_for('add_comment', movie_id=movie.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <textarea name="content" rows="4" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2" placeholder="Escribe tu comentario aquí..."></textarea>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Publicar Comentario</button>
+            </form>
+        </div>
+    {% else %}
+        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+            <p class="text-blue-800">Debes <a href="{{ url_for('login') }}" class="font-bold underline">iniciar sesión</a> para dejar un comentario.</p>
+        </div>
+    {% endif %}
+    
+    {% if comments %}
+        <div class="space-y-4">
+            {% for comment in comments %}
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="font-bold">{{ comment.user.username }}</span>
+                            <span class="text-gray-500 text-sm ml-2">{{ comment.created_at|format_date }}</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">{{ comment.content }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-600">No hay comentarios aún. ¡Sé el primero en comentar!</p>
+    {% endif %}
+</div>
+{% endblock %}
